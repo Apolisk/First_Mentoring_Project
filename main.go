@@ -1,6 +1,7 @@
 package main
 
 import (
+	"os"
 	"fmt"
 	"math/rand"
 	"strconv"
@@ -8,19 +9,21 @@ import (
 
 func main() {
 	var length int
+	input(&length, "Password length:", "Password length MUST be a number!")
 
-	fmt.Print("Password length : ")
-	_, err := fmt.Scanln(&length)
-	if err != nil {
-		fmt.Println("Password length MUST be a number!")
-		return
-	}
-	var numbers = []int{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}
-	password := ""
+	var password string
 	for i := 0; i < length; i++ {
-		randVal := numbers[rand.Intn(len(numbers))]
-		password += strconv.Itoa(randVal)
+		password += strconv.Itoa(rand.Intn(10))
 	}
-	fmt.Println("Yes")
+
 	fmt.Println(password)
+}
+
+func input(v any, m, e string) {
+	fmt.Print(m, " ")
+	_, err := fmt.Scanln(v)
+	if err != nil {
+		fmt.Printf("\n%s (%s)\n", e, err)
+		os.Exit(1)
+	}
 }
