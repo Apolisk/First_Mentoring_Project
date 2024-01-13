@@ -5,5 +5,6 @@
 ## TODO
 
 1. Research, think about, and describe the possible ways to generate a password.
-2. Remember to create a separate branch and the pull request.
-3. Play around with one new feature in password generation.
+2. Ask for the number of passwords to generate.
+3. Change uppercase flag to letters.
+4. Write the output to txt file.

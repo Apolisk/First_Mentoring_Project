@@ -8,41 +8,62 @@ import (
 )
 
 func main() {
-	var length int
-	var uppercase bool
+	// Generation config
+	var (
+		length    uint
+		uppercase bool // TODO: Make flag "letters" instead
+	)
 
-	input(&length, "Password length:", "Password length MUST be a number!")
-	input(&uppercase, "Type 1  if you want to use uppercase character, else type 0", "Must be bool type")
+	input(&length, "Password length:", "Password length must be a positive number!")
+	input(&uppercase, "Uppercase? (y/n):", "")
 
-	fmt.Println(generate(length, uppercase))
+	password := generate(length, uppercase)
+	fmt.Println(password)
 }
 
-func input(v any, m, e string) {
-	fmt.Print(m, " ")
+func input(v any, msg, emsg string) {
+	fmt.Print(msg, " ")
+
+	if b, ok := v.(*bool); ok {
+		var s string
+		fmt.Scanln(&s)
+		*b = s == "y"
+		return
+	}
+
 	_, err := fmt.Scanln(v)
 	if err != nil {
-		fmt.Printf("\n%s (%s)\n", e, err)
+		fmt.Printf("\n%s (%s)\n", emsg, err)
 		os.Exit(1)
 	}
 }
 
-func generate(l int, u bool) string {
-	var password string
-	const UpperLetters = "ABCDEFGHIKLMNOPQRSTVXYZ"
-
-	if l <= 0 {
-		return "Password length must  be greater then 0"
-	} else if l > 0 && u == false {
-		for i := 0; i < l; i++ {
-			password += strconv.Itoa(rand.Intn(10))
-		}
-	} else {
-		for i := 0; i < l; i++ {
-			randnum := strconv.Itoa(rand.Intn(10))
-			randchar := string(rune(UpperLetters[rand.Intn(len(UpperLetters))]))
-			password += randnum
-			password += randchar
-		}
+func generate(length uint, uppercase bool) (password string) {
+	if length == 0 {
+		return "Password length cannot be zero"
 	}
+
+	if uppercase {
+		const upperLetters = "ABCDEFGHIKLMNOPQRSTVXYZ"
+
+		for i := 0; i < int(length); i++ {
+			if chance(50) {
+				password += strconv.Itoa(rand.Intn(10))
+			} else {
+				password += string(upperLetters[rand.Intn(len(upperLetters))])
+			}
+		}
+
+		return password
+	} 
+
+	for i := 0; i < int(length); i++ {
+		password += strconv.Itoa(rand.Intn(10))
+	}
+
 	return password
+}
+
+func chance(x int) bool {
+	return rand.Intn(100) < x - 1
 }
