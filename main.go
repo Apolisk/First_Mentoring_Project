@@ -5,20 +5,27 @@ import (
 	"math/rand"
 	"os"
 	"strconv"
+	"strings"
 )
 
 func main() {
 	// Generation config
 	var (
 		length    uint
-		uppercase bool // TODO: Make flag "letters" instead
+		uppercase bool     // TODO: Make flag "letters" instead
+		quantity  int      // Quantity of passwords
+		passwords []string // Slice to save all generated passwords
 	)
 
 	input(&length, "Password length:", "Password length must be a positive number!")
 	input(&uppercase, "Uppercase? (y/n):", "")
+	input(&quantity, "How much passwords you want?: ", "Password quantity must be a positive number!")
 
-	password := generate(length, uppercase)
-	fmt.Println(password)
+	for i := 0; i < quantity; i++ {
+		passwords = append(passwords, generate(length, uppercase))
+	}
+
+	write(passwords)
 }
 
 func input(v any, msg, emsg string) {
@@ -26,7 +33,7 @@ func input(v any, msg, emsg string) {
 
 	if b, ok := v.(*bool); ok {
 		var s string
-		fmt.Scanln(&s)
+		_, _ = fmt.Scanln(&s)
 		*b = s == "y"
 		return
 	}
@@ -44,18 +51,18 @@ func generate(length uint, uppercase bool) (password string) {
 	}
 
 	if uppercase {
-		const upperLetters = "ABCDEFGHIKLMNOPQRSTVXYZ"
+		const Letters = "ABCDEFGHIKLMNOPQRSTVXYZabcdefghijklmnopqrstuvwxyz"
 
 		for i := 0; i < int(length); i++ {
 			if chance(50) {
 				password += strconv.Itoa(rand.Intn(10))
 			} else {
-				password += string(upperLetters[rand.Intn(len(upperLetters))])
+				password += string(Letters[rand.Intn(len(Letters))])
 			}
 		}
 
 		return password
-	} 
+	}
 
 	for i := 0; i < int(length); i++ {
 		password += strconv.Itoa(rand.Intn(10))
@@ -65,5 +72,13 @@ func generate(length uint, uppercase bool) (password string) {
 }
 
 func chance(x int) bool {
-	return rand.Intn(100) < x - 1
+	return rand.Intn(100) < x-1
+}
+
+func write(passwords []string) {
+	data := strings.Join(passwords, "\n")
+	err := os.WriteFile("output.txt", []byte(data), 0644)
+	if err != nil {
+		panic(err)
+	}
 }

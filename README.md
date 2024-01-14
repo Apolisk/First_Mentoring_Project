@@ -8,3 +8,5 @@
 2. Ask for the number of passwords to generate.
 3. Change uppercase flag to letters.
 4. Write the output to txt file.
+
+
