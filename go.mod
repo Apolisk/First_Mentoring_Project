@@ -1,3 +1,3 @@
-module awesomeProject1
+module github.com/Apolisk/passgen
 
 go 1.21

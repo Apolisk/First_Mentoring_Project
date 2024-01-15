@@ -5,8 +5,7 @@
 ## TODO
 
 1. Research, think about, and describe the possible ways to generate a password.
-2. Ask for the number of passwords to generate.
-3. Change uppercase flag to letters.
-4. Write the output to txt file.
-
-
+2. Finish the `passgen` package implementation.
+3. Use the new `passgen` package in the `cmd/passgen/main.go`.
+4. Implement the `Specials` generation as a `passgen.Config` option.
+5. Check the `github.com/spf13/cobra` usage examples.
