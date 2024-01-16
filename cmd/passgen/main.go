@@ -2,27 +2,36 @@ package main
 
 import (
 	"fmt"
-	"github.com/Apolisk/passgen"
 	"os"
+
+	"github.com/Apolisk/passgen"
 )
 
 func main() {
-	// Generation config
 	var (
-		length   uint
-		letters  bool
 		count    int
+		length   int
+		letters  bool
 		specials bool
 	)
 
+	input(&count, "How much passwords you want?", "Password count must be a positive number!")
 	input(&length, "Password length:", "Password length must be a positive number!")
 	input(&letters, "Add letters? (y/n):", "")
 	input(&specials, "Add specials? (y/n):", "")
-	input(&count, "How much passwords you want?", "Password quantity must be a positive number!")
 
-	passwords := passgen.GenPases(count, length, letters, specials)
+	config := passgen.Config{
+		Letters:  letters,
+		Specials: specials,
+	}
 
-	if err := passgen.WriteFile("output.txt", passwords); err != nil {
+	pwds, err := passgen.Many(count, length, config)
+	if err != nil {
+		fmt.Println("Error generating a password:", err)
+		return
+	}
+
+	if err := pwds.WriteFile("output.txt"); err != nil {
 		fmt.Println("Error dumping passwords to file:", err)
 	}
 }

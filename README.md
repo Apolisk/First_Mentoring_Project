@@ -5,7 +5,5 @@
 ## TODO
 
 1. Research, think about, and describe the possible ways to generate a password.
-2. Finish the `passgen` package implementation.
-3. Use the new `passgen` package in the `cmd/passgen/main.go`.
-4. Implement the `Specials` generation as a `passgen.Config` option.
-5. Check the `github.com/spf13/cobra` usage examples.
+2. Play around with `github.com/spf13/cobra` to integrate it later.
+3. Include file output path to the cli flags (`-o output.txt`).
