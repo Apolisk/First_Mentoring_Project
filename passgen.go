@@ -2,6 +2,7 @@ package passgen
 
 import (
 	"errors"
+	"fmt"
 	"math/rand"
 	"os"
 	"strconv"
@@ -59,6 +60,22 @@ func New(n int, c Config) (Password, error) {
 	}
 
 	return password, nil
+}
+
+// genPases
+func genPases(count, length int, letters, specials bool) (passwords []string) {
+	passwords = make([]string, count)
+	for i := 0; i < count; i++ {
+
+		password, err := New(length, Config{Letters: letters, Specials: specials})
+		if err != nil {
+			fmt.Println("Error generating password:", err)
+			return
+		}
+
+		passwords[i] = string(password)
+	}
+	return passwords
 }
 
 func chance(x int) bool {
