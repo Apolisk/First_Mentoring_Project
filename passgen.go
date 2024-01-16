@@ -25,6 +25,7 @@ func New(n int, c Config) (Password, error) {
 	if n == 0 {
 		return "", errors.New("length cannot be zero")
 	}
+
 	var password Password
 	switch {
 	case c.Letters && c.Specials:
@@ -37,6 +38,7 @@ func New(n int, c Config) (Password, error) {
 				password += Password(letters[rand.Intn(len(letters))])
 			}
 		}
+
 	case c.Letters:
 		for i := 0; i < n; i++ {
 			if chance(50) {
@@ -45,6 +47,7 @@ func New(n int, c Config) (Password, error) {
 				password += Password(letters[rand.Intn(len(letters))])
 			}
 		}
+
 	case c.Specials:
 		for i := 0; i < n; i++ {
 			if chance(50) {
@@ -53,27 +56,25 @@ func New(n int, c Config) (Password, error) {
 				password += Password(specials[rand.Intn(len(specials))])
 			}
 		}
+
 	default:
 		for i := 0; i < n; i++ {
 			password += Password(strconv.Itoa(rand.Intn(10)))
 		}
 	}
-
 	return password, nil
 }
 
-// genPases
-func genPases(count, length int, letters, specials bool) (passwords []string) {
-	passwords = make([]string, count)
+func GenPases(count int, length uint, letters, specials bool) (passwords []Password) {
+	passwords = make([]Password, count)
 	for i := 0; i < count; i++ {
 
-		password, err := New(length, Config{Letters: letters, Specials: specials})
+		password, err := New(int(length), Config{Letters: letters, Specials: specials})
 		if err != nil {
 			fmt.Println("Error generating password:", err)
 			return
 		}
-
-		passwords[i] = string(password)
+		passwords[i] = password
 	}
 	return passwords
 }
@@ -92,7 +93,17 @@ func (p Password) String() string {
 }
 
 // WriteFile writes the list of passwords to the file.
-func WriteFile(path string, pws []string) error {
-	data := strings.Join(pws, "\n")
+// Сделал костыли в виде перезаписи слайса в тип string, не нашел решения как сделать
+// Join с типом Passwords, bard сказал что можно сделать
+// data := strings.Join([]string(pws), "\n") // Convert pws to []string temporarily
+// Но это преобразование не работает, по этому сдела максимално наивно
+
+func WriteFile(path string, pws []Password) error {
+	pwStrings := make([]string, 0, len(pws))
+	for _, pw := range pws {
+		pwStrings = append(pwStrings, string(pw))
+	}
+
+	data := strings.Join(pwStrings, "\n")
 	return os.WriteFile(path, []byte(data), 0644)
 }

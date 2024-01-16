@@ -20,17 +20,7 @@ func main() {
 	input(&specials, "Add specials? (y/n):", "")
 	input(&count, "How much passwords you want?", "Password quantity must be a positive number!")
 
-	passwords := make([]string, count)
-	for i := 0; i < count; i++ {
-
-		password, err := passgen.New(int(length), passgen.Config{Letters: letters, Specials: specials})
-		if err != nil {
-			fmt.Println("Error generating password:", err)
-			return
-		}
-
-		passwords[i] = string(password)
-	}
+	passwords := passgen.GenPases(count, length, letters, specials)
 
 	if err := passgen.WriteFile("output.txt", passwords); err != nil {
 		fmt.Println("Error dumping passwords to file:", err)
