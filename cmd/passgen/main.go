@@ -2,37 +2,37 @@ package main
 
 import (
 	"fmt"
-	"errors"
-	"math/rand"
+	"github.com/Apolisk/passgen"
 	"os"
-	"strconv"
-	"strings"
 )
 
 func main() {
 	// Generation config
 	var (
-		length    uint
-		letters   bool
-		count     int
+		length   uint
+		letters  bool
+		count    int
+		specials bool
 	)
 
 	input(&length, "Password length:", "Password length must be a positive number!")
 	input(&letters, "Add letters? (y/n):", "")
+	input(&specials, "Add specials? (y/n):", "")
 	input(&count, "How much passwords you want?", "Password quantity must be a positive number!")
 
 	passwords := make([]string, count)
 	for i := 0; i < count; i++ {
-		password, err := generate(length, letters)
+
+		password, err := passgen.New(int(length), passgen.Config{Letters: letters, Specials: specials})
 		if err != nil {
 			fmt.Println("Error generating password:", err)
 			return
 		}
 
-		passwords[i] = password
+		passwords[i] = string(password)
 	}
 
-	if err := write(passwords); err != nil {
+	if err := passgen.WriteFile("output.txt", passwords); err != nil {
 		fmt.Println("Error dumping passwords to file:", err)
 	}
 }
@@ -52,39 +52,4 @@ func input(v any, msg, emsg string) {
 		fmt.Printf("\n%s (%s)\n", emsg, err)
 		os.Exit(1)
 	}
-}
-
-func generate(length uint, letters bool) (password string, err error) {
-	if length == 0 {
-		return "", errors.New("length cannot be zero")
-	}
-
-	if letters {
-		const set = "ABCDEFGHIKLMNOPQRSTVXYZabcdefghijklmnopqrstuvwxyz"
-
-		for i := 0; i < int(length); i++ {
-			if chance(50) {
-				password += strconv.Itoa(rand.Intn(10))
-			} else {
-				password += string(set[rand.Intn(len(set))])
-			}
-		}
-
-		return password, nil
-	}
-
-	for i := 0; i < int(length); i++ {
-		password += strconv.Itoa(rand.Intn(10))
-	}
-	
-	return password, nil
-}
-
-func chance(x int) bool {
-	return rand.Intn(100) < x-1
-}
-
-func write(passwords []string) error {
-	data := strings.Join(passwords, "\n")
-	return os.WriteFile("output.txt", []byte(data), 0644)
 }
