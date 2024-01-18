@@ -9,20 +9,23 @@ import (
 
 func main() {
 	var (
-		count    int
-		length   int
-		letters  bool
-		specials bool
+		count     int
+		length    int
+		letters   bool
+		specials  bool
+		beginchar bool
 	)
 
 	input(&count, "How much passwords you want?", "Password count must be a positive number!")
 	input(&length, "Password length:", "Password length must be a positive number!")
 	input(&letters, "Add letters? (y/n):", "")
 	input(&specials, "Add specials? (y/n):", "")
+	input(&beginchar, "Begin With A Letter? (y/n):", "")
 
 	config := passgen.Config{
-		Letters:  letters,
-		Specials: specials,
+		Letters:   letters,
+		Specials:  specials,
+		BeginChar: beginchar,
 	}
 
 	pwds, err := passgen.Many(count, length, config)

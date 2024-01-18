@@ -24,8 +24,9 @@ const (
 
 // Config defines password generation settings.
 type Config struct {
-	Letters  bool
-	Specials bool
+	Letters   bool
+	Specials  bool
+	BeginChar bool
 }
 
 // New generates a new password with given length n.
@@ -35,6 +36,9 @@ func New(n int, c Config) (Password, error) {
 	}
 
 	rules := []string{digits}
+	if c.BeginChar {
+		rules = append(rules, string(letters[rand.Intn(len(letters))]))
+	}
 	if c.Letters {
 		rules = append(rules, letters)
 	}
@@ -59,14 +63,21 @@ func Many(count, n int, c Config) (ps Passwords, err error) {
 
 // generate generates a random password with given rules.
 func generate(n int, rules ...string) Password {
-	var p []byte
+	p := make([]byte, 0, n)
+
+	//If we use BeginChar rule
+	if len(rules[1]) == 1 {
+		p = append(p, rules[1][0])
+		n -= 1
+	}
+
 	for i := 0; i < n; i++ {
 		// Pick a random rule.
 		rule := rules[rand.Intn(len(rules))]
-		// Pick a random character from the rule.
+		// Pick a random character from the rule.\
 		p = append(p, rule[rand.Intn(len(rule))])
 	}
-	return Password(string(p))
+	return Password(p)
 }
 
 // String implements fmt.Stringer.
