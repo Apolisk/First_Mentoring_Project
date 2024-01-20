@@ -15,18 +15,19 @@ type (
 	Passwords []Password
 )
 
+type charset = []byte
+
 // Set of rules.
-const (
-	digits   = "0123456789"
-	letters  = "ABCDEFGHIKLMNOPQRSTVXYZabcdefghijklmnopqrstuvwxyz"
-	specials = "!@#$%^&*()/?{}[]|"
+var (
+	digits   = charset("0123456789")
+	letters  = charset("abcdefghijklmnopqrstuvwxyzABCDEFGHIKLMNOPQRSTVXYZ")
+	specials = charset("!@#$%^&*()/?{}[]|")
 )
 
 // Config defines password generation settings.
 type Config struct {
 	Letters   bool
 	Specials  bool
-	BeginChar bool
 }
 
 // New generates a new password with given length n.
@@ -35,10 +36,7 @@ func New(n int, c Config) (Password, error) {
 		return "", errors.New("length must be a positive number")
 	}
 
-	rules := []string{digits}
-	if c.BeginChar {
-		rules = append(rules, string(letters[rand.Intn(len(letters))]))
-	}
+	rules := []charset{digits}
 	if c.Letters {
 		rules = append(rules, letters)
 	}
@@ -62,22 +60,25 @@ func Many(count, n int, c Config) (ps Passwords, err error) {
 }
 
 // generate generates a random password with given rules.
-func generate(n int, rules ...string) Password {
-	p := make([]byte, 0, n)
+func generate(n int, rules ...charset) Password {
+	p := make([]byte, n)
 
-	//If we use BeginChar rule
-	if len(rules[1]) == 1 {
-		p = append(p, rules[1][0])
-		n -= 1
-	}
+	// The first character should always be a letter.
+	p[0] = pick(letters)
 
-	for i := 0; i < n; i++ {
+	for i := 1; i < n; i++ {
 		// Pick a random rule.
-		rule := rules[rand.Intn(len(rules))]
-		// Pick a random character from the rule.\
-		p = append(p, rule[rand.Intn(len(rule))])
+		rule := pick(rules)
+		// Pick a random character from the rule.
+		p[i] = pick(rule)
 	}
+
 	return Password(p)
+}
+
+// pick picks a random value from a given slice.
+func pick[T any](a []T) T {
+	return a[rand.Intn(len(a))]
 }
 
 // String implements fmt.Stringer.
