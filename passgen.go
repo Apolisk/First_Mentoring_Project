@@ -1,4 +1,4 @@
-package passgen
+package main
 
 import (
 	"errors"
@@ -15,7 +15,7 @@ type (
 	Passwords []Password
 )
 
-type charset = []byte
+type charset []byte
 
 // Set of rules.
 var (
@@ -26,8 +26,8 @@ var (
 
 // Config defines password generation settings.
 type Config struct {
-	Letters   bool
-	Specials  bool
+	Letters  bool
+	Specials bool
 }
 
 // New generates a new password with given length n.
@@ -65,14 +65,12 @@ func generate(n int, rules ...charset) Password {
 
 	// The first character should always be a letter.
 	p[0] = pick(letters)
-
 	for i := 1; i < n; i++ {
 		// Pick a random rule.
 		rule := pick(rules)
 		// Pick a random character from the rule.
 		p[i] = pick(rule)
 	}
-
 	return Password(p)
 }
 
