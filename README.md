@@ -5,5 +5,5 @@
 ## TODO
 
 1. Research, think about, and describe the possible ways to generate a password.
-2. Remember to create a separate branch and the pull request.
-3. Play around with one new feature in password generation.
+2. Play around with `github.com/spf13/cobra` to integrate it later.
+3. Include file output path to the cli flags (`-o output.txt`).
