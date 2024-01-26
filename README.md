@@ -4,6 +4,6 @@
 
 ## TODO
 
-1. Research, think about, and describe the possible ways to generate a password.
-2. Play around with `github.com/spf13/cobra` to integrate it later.
-3. Include file output path to the cli flags (`-o output.txt`).
+1. Include file output path to the cli flags (`-o output.txt`).
+2. Start learning the concurrency section in Go Tour.
+3. Think about ways to introduce the concurrency to **passgen**.
