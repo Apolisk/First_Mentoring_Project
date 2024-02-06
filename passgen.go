@@ -51,12 +51,23 @@ func New(n int, c Config) (Password, error) {
 // Many generates a list of passwords with given length n and count of them.
 func Many(count, n int, c Config) (ps Passwords, err error) {
 	ps = make(Passwords, count)
+
+	var wg sync.WaitGroup
+	var mu sync.Mutex
+
 	for i := 0; i < count; i++ {
-		ps[i], err = New(n, c)
-		if err != nil {
-			return nil, err
-		}
+		wg.Add(1)
+		go func(i int) {
+			defer wg.Done()
+			mu.Lock()
+			ps[i], err = New(n, c)
+			mu.Unlock()
+			if err != nil {
+				return
+			}
+		}(i)
 	}
+	wg.Wait()
 	return ps, nil
 }
 
@@ -67,21 +78,11 @@ func generate(n int, rules ...charset) Password {
 	// The first character should always be a letter.
 	p[0] = pick(letters)
 
-	var wg sync.WaitGroup
-	var mu sync.Mutex
-
 	for i := 1; i < n; i++ {
-		wg.Add(1)
-		go func(i int) {
-			defer wg.Done()
-			// Pick a random rule.
-			rule := pick(rules)
-			// Pick a random character from the rule.
-			mu.Lock()
-			p[i] = pick(rule)
-			mu.Unlock()
-		}(i)
-		wg.Wait()
+		// Pick a random rule.
+		rule := pick(rules)
+		// Pick a random character from the rule.
+		p[i] = pick(rule)
 	}
 
 	return Password(p)
