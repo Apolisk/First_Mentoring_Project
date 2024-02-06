@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/Apolisk/passgen"
 	"github.com/spf13/cobra"
 )
 
@@ -41,12 +40,12 @@ func runCmd(cmd *cobra.Command, args []string) {
 	letters, _ := cmd.Flags().GetBool("letters")
 	specials, _ := cmd.Flags().GetBool("specials")
 
-	config := passgen.Config{
+	config := Config{
 		Letters:  letters,
 		Specials: specials,
 	}
 
-	pwds, err := passgen.Many(count, length, config)
+	pwds, err := Many(count, length, config)
 	if err != nil {
 		fmt.Println("Error generating a password:", err)
 		return

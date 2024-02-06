@@ -1,10 +1,11 @@
-package passgen
+package main
 
 import (
 	"errors"
 	"math/rand"
 	"os"
 	"strings"
+	"sync"
 )
 
 type (
@@ -26,8 +27,8 @@ var (
 
 // Config defines password generation settings.
 type Config struct {
-	Letters   bool
-	Specials  bool
+	Letters  bool
+	Specials bool
 }
 
 // New generates a new password with given length n.
@@ -66,11 +67,21 @@ func generate(n int, rules ...charset) Password {
 	// The first character should always be a letter.
 	p[0] = pick(letters)
 
+	var wg sync.WaitGroup
+	var mu sync.Mutex
+
 	for i := 1; i < n; i++ {
-		// Pick a random rule.
-		rule := pick(rules)
-		// Pick a random character from the rule.
-		p[i] = pick(rule)
+		wg.Add(1)
+		go func(i int) {
+			defer wg.Done()
+			// Pick a random rule.
+			rule := pick(rules)
+			// Pick a random character from the rule.
+			mu.Lock()
+			p[i] = pick(rule)
+			mu.Unlock()
+		}(i)
+		wg.Wait()
 	}
 
 	return Password(p)
