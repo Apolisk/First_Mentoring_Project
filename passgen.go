@@ -5,6 +5,7 @@ import (
 	"math/rand"
 	"os"
 	"strings"
+	"sync"
 )
 
 type (
@@ -26,8 +27,10 @@ var (
 
 // Config defines password generation settings.
 type Config struct {
-	Letters   bool
-	Specials  bool
+	Letters  bool
+	Specials bool
+	Parallel int
+	Path     string
 }
 
 // New generates a new password with given length n.
@@ -50,12 +53,30 @@ func New(n int, c Config) (Password, error) {
 // Many generates a list of passwords with given length n and count of them.
 func Many(count, n int, c Config) (ps Passwords, err error) {
 	ps = make(Passwords, count)
-	for i := 0; i < count; i++ {
-		ps[i], err = New(n, c)
-		if err != nil {
-			return nil, err
-		}
+
+	batchCount := count / c.Parallel
+	remainder := count % c.Parallel
+
+	var mu sync.Mutex
+	var wg sync.WaitGroup
+
+	for i := 0; i < c.Parallel; i++ {
+		wg.Add(1)
+		go func(i int) {
+			defer wg.Done()
+			start := batchCount * i
+			end := start + batchCount
+			if i == c.Parallel-1 && remainder > 0 {
+				end += remainder
+			}
+			for j := start; j < end; j++ {
+				mu.Lock()
+				ps[j], _ = New(n, c)
+				mu.Unlock()
+			}
+		}(i)
 	}
+	wg.Wait()
 	return ps, nil
 }
 
@@ -96,7 +117,7 @@ func (ps Passwords) Strings() []string {
 }
 
 // WriteFile writes the content of passwords to the file.
-func (ps Passwords) WriteFile(path string) error {
+func (ps Passwords) WriteFile(c Config) error {
 	data := strings.Join(ps.Strings(), "\n")
-	return os.WriteFile(path, []byte(data), 0644)
+	return os.WriteFile(c.Path, []byte(data), 0644)
 }
